@@ -1,0 +1,24 @@
+---
+title: "zfCRISPRi with Ac/Ds transposition of sgRNAs"
+---
+
+---
+
+<br>
+
+## Welcome
+
+Hello, here you will find analysis walkthroughs of the results of the following study:
+
+[Re-purposing Ac/Ds transgenic system for CRISPR/dCas9 modulation of enhancers and non-coding RNAs in zebrafish](https://doi.org/10.1101/450684 "biorxiv.org")
+
+<br>
+
+## Things to note
+
+As the title suggests, this study was performed in zebrafish (*Danio rerio*). 
+
+The figure numbers in the navigation bar correspond to the **LATEST** version (not the original!) of the manuscript, and is currently undergoing peer review.
+
+
+

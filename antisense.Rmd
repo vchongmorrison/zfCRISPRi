@@ -1,0 +1,18 @@
+---
+title: "Stranded RNA-seq - antisense transcription zfCRISPRi"
+---
+
+---
+
+<br>
+
+## Experimental summary
+
+In progress
+
+[KAPA RNA HyperPrep Kit with RiboErase (HMR)](https://rochesequencingstore.com/catalog/kapa-rna-hyperprep-kit-with-riboerase-hmr/)
+
+
+---
+
+<br>
