@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>qPCR analysis - enhancer zfCRISPRi</title>
+
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">zfCRISPRi</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="enhancers.html">Fig3 enhancers</a>
+</li>
+<li>
+  <a href="antisense.html">Fig4 antisense txn</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="mailto:&lt;v.chongmorrison@ucl.ac.uk&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="http://github.com/vchongmorrison/">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">qPCR analysis - enhancer zfCRISPRi</h1>
+
+</div>
+
+
+<hr />
+<p><br></p>
+<div id="experimental-summary" class="section level2">
+<h2>Experimental summary</h2>
+<p>CRISPRi microinjections were performed with Ac/Ds sgRNAs targeting enhancers, or scrambled control. Cells expressing dCas9-SID4x-2a-Citrine under the control of a sox10 (most neural crest, plus few non-NC cell types) BAC transgene were FAC-sorted from 24hpf embryos. RNA was isolated and cDNA (via oligo-dT priming) synthesised. Quantitative real-time PCR (qPCR) was performed using TaqMan Gene Expression Assay on StepOnePlus platform and software v2.3.</p>
+<p><a href="https://www.thermofisher.com/uk/en/home/life-science/pcr/real-time-pcr/real-time-pcr-assays/taqman-gene-expression.html?SID=fr-taqman-1">TaqMan</a> reagents used:</p>
+<ul>
+<li>Dr03130102_m1 (cdh7a; 66 bp)</li>
+<li>Dr03086868_m1 (pdgfra; 67 bp)</li>
+<li>Dr03436842_m1 (gapdh - endogenous control; 121 bp)</li>
+<li>TaqMan Fast Advanced Master Mix #4444556</li>
+</ul>
+<hr />
+<p><br></p>
+</div>
+<div id="cdh7a-enhancers" class="section level2">
+<h2><em>cdh7a</em> enhancers</h2>
+<p><br></p>
+<div id="load-required-packages" class="section level3">
+<h3>Load required packages</h3>
+<pre class="r"><code>library(qpcR)</code></pre>
+<pre><code>## Loading required package: MASS</code></pre>
+<pre><code>## Warning: package &#39;MASS&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Loading required package: minpack.lm</code></pre>
+<pre><code>## Loading required package: rgl</code></pre>
+<pre><code>## Loading required package: robustbase</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+## ✓ tibble  3.1.6     ✓ dplyr   1.0.8
+## ✓ tidyr   1.2.0     ✓ stringr 1.4.0
+## ✓ readr   2.1.2     ✓ forcats 0.5.1</code></pre>
+<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x tidyr::expand() masks Matrix::expand()
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## x tidyr::pack()   masks Matrix::pack()
+## x dplyr::select() masks MASS::select()
+## x tidyr::unpack() masks Matrix::unpack()</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(RColorBrewer)</code></pre>
+<p><br></p>
+</div>
+<div id="load-amplification-data" class="section level3">
+<h3>Load amplification data</h3>
+<p>Export raw, non-baseline corrected amplification data from qPCR machine e.g. on StepOnePlus software, these would be Rn values (deltaRn is baseline-corrected by StepOnePlus).</p>
+<p>Prep dataframe(s) consisting of three columns - Cycle, Run, Rn:</p>
+<ul>
+<li>Cycle = cycle number, in this case from 1 to 40 per Run</li>
+<li>Run = named in the following format Gene*Well_sample_info</li>
+<li>Rn = exported Rn values for each corresponding Cycle/Run</li>
+</ul>
+<p>Remove any rows that are not going to be included in the analysis e.g. -RT and water controls (do manually check first they are clean as expected!).</p>
+<p>Here, my data is split across four dataframes due to running multiple plates.</p>
+<pre class="r"><code>data1 &lt;- data.frame(read.table(&quot;./data1.txt&quot;, header=TRUE, sep=&quot;\t&quot;))
+data2 &lt;- data.frame(read.table(&quot;./data2.txt&quot;, header=TRUE, sep=&quot;\t&quot;))
+data3 &lt;- data.frame(read.table(&quot;./data3.txt&quot;, header=TRUE, sep=&quot;\t&quot;))
+data4 &lt;- data.frame(read.table(&quot;./data4.txt&quot;, header=TRUE, sep=&quot;\t&quot;))
+
+head(data1, 10)</code></pre>
+<pre><code>##    Cycles             Run     Rn
+## 1       1 cdh7a*A1_cdh1_1 1.6121
+## 2       2 cdh7a*A1_cdh1_1 1.6101
+## 3       3 cdh7a*A1_cdh1_1 1.6069
+## 4       4 cdh7a*A1_cdh1_1 1.6021
+## 5       5 cdh7a*A1_cdh1_1 1.6020
+## 6       6 cdh7a*A1_cdh1_1 1.5952
+## 7       7 cdh7a*A1_cdh1_1 1.5957
+## 8       8 cdh7a*A1_cdh1_1 1.5934
+## 9       9 cdh7a*A1_cdh1_1 1.5943
+## 10     10 cdh7a*A1_cdh1_1 1.5930</code></pre>
+<p>Add Group column based on experimental condition.</p>
+<ul>
+<li>cdh = upstream and intronic sgRNAs</li>
+<li>cdhUP = upstream sgRNAs only</li>
+<li>scr = scrambled sgRNAs.</li>
+</ul>
+<pre class="r"><code>data1$Group &lt;- rep(c(&quot;cdh&quot;,&quot;scr&quot;), times=c(240,240))
+data2$Group &lt;- rep(c(&quot;cdh&quot;,&quot;scr&quot;), times=c(240,240))
+data3$Group &lt;- rep(c(&quot;cdh&quot;,&quot;scr&quot;), times=c(480,480))
+data4$Group &lt;- rep(c(&quot;cdhUP&quot;,&quot;scr&quot;,&quot;cdhUP&quot;,&quot;scr&quot;), times=c(480,240,480,240))
+
+head(data1, 10)</code></pre>
+<pre><code>##    Cycles             Run     Rn Group
+## 1       1 cdh7a*A1_cdh1_1 1.6121   cdh
+## 2       2 cdh7a*A1_cdh1_1 1.6101   cdh
+## 3       3 cdh7a*A1_cdh1_1 1.6069   cdh
+## 4       4 cdh7a*A1_cdh1_1 1.6021   cdh
+## 5       5 cdh7a*A1_cdh1_1 1.6020   cdh
+## 6       6 cdh7a*A1_cdh1_1 1.5952   cdh
+## 7       7 cdh7a*A1_cdh1_1 1.5957   cdh
+## 8       8 cdh7a*A1_cdh1_1 1.5934   cdh
+## 9       9 cdh7a*A1_cdh1_1 1.5943   cdh
+## 10     10 cdh7a*A1_cdh1_1 1.5930   cdh</code></pre>
+<p>Final tidying up. Prefix Group (experimental condition) to existing Run names, check all is in order, then rename columns back to Cycles, Run, Rn.</p>
+<pre class="r"><code>data1 &lt;- data.frame(data1$Cycles, (paste(data1$Group,data1$Run,sep=&quot;^&quot;)), data1$Rn)
+data2 &lt;- data.frame(data2$Cycles, (paste(data2$Group,data2$Run,sep=&quot;^&quot;)), data2$Rn)
+data3 &lt;- data.frame(data3$Cycles, (paste(data3$Group,data3$Run,sep=&quot;^&quot;)), data3$Rn)
+data4 &lt;- data.frame(data4$Cycles, (paste(data4$Group,data4$Run,sep=&quot;^&quot;)), data4$Rn)
+head(data1, 10)</code></pre>
+<pre><code>##    data1.Cycles X.paste.data1.Group..data1.Run..sep........ data1.Rn
+## 1             1                         cdh^cdh7a*A1_cdh1_1   1.6121
+## 2             2                         cdh^cdh7a*A1_cdh1_1   1.6101
+## 3             3                         cdh^cdh7a*A1_cdh1_1   1.6069
+## 4             4                         cdh^cdh7a*A1_cdh1_1   1.6021
+## 5             5                         cdh^cdh7a*A1_cdh1_1   1.6020
+## 6             6                         cdh^cdh7a*A1_cdh1_1   1.5952
+## 7             7                         cdh^cdh7a*A1_cdh1_1   1.5957
+## 8             8                         cdh^cdh7a*A1_cdh1_1   1.5934
+## 9             9                         cdh^cdh7a*A1_cdh1_1   1.5943
+## 10           10                         cdh^cdh7a*A1_cdh1_1   1.5930</code></pre>
+<pre class="r"><code>colnames(data1) &lt;- c(&quot;Cycles&quot;, &quot;Run&quot;, &quot;Rn&quot;)
+colnames(data2) &lt;- c(&quot;Cycles&quot;, &quot;Run&quot;, &quot;Rn&quot;)
+colnames(data3) &lt;- c(&quot;Cycles&quot;, &quot;Run&quot;, &quot;Rn&quot;)
+colnames(data4) &lt;- c(&quot;Cycles&quot;, &quot;Run&quot;, &quot;Rn&quot;)
+
+head(data1, 10)</code></pre>
+<pre><code>##    Cycles                 Run     Rn
+## 1       1 cdh^cdh7a*A1_cdh1_1 1.6121
+## 2       2 cdh^cdh7a*A1_cdh1_1 1.6101
+## 3       3 cdh^cdh7a*A1_cdh1_1 1.6069
+## 4       4 cdh^cdh7a*A1_cdh1_1 1.6021
+## 5       5 cdh^cdh7a*A1_cdh1_1 1.6020
+## 6       6 cdh^cdh7a*A1_cdh1_1 1.5952
+## 7       7 cdh^cdh7a*A1_cdh1_1 1.5957
+## 8       8 cdh^cdh7a*A1_cdh1_1 1.5934
+## 9       9 cdh^cdh7a*A1_cdh1_1 1.5943
+## 10     10 cdh^cdh7a*A1_cdh1_1 1.5930</code></pre>
+<p><br></p>
+</div>
+<div id="qpcr-analysis" class="section level3">
+<h3>qpcR analysis</h3>
+<p>We will perform the analysis one experiment at a time (cdh or cdhUP vs scr) using the <code>ratiocalc</code> function. Prep two dataframes containing the appropriate data (dataframe 1 = cdh and scr, dataframe 2 = cdhUP and scr).</p>
+<pre class="r"><code>data &lt;- data.frame(rbind(data1,data2,data3,data4))
+
+data_cdh &lt;- data[-grep(&quot;UP&quot;, data$Run), ]
+data_cdhUP &lt;- rbind((data[grep(&quot;UP&quot;, data$Run), ]),(data[grep(&quot;scr&quot;, data$Run), ]))</code></pre>
+<p><br></p>
+<div id="data_cdh-sgrnas-targeting-group-upstream-and-intronic-enhancers" class="section level4">
+<h4>data_cdh (sgRNAs targeting Group Upstream and Intronic enhancers)</h4>
+<ol style="list-style-type: decimal">
+<li>Set (non) random seed for reproducibility</li>
+<li>Reorganise the data in the exact format required for qpcR package</li>
+<li>Runs <code>pcrbatch</code> function to fit sigmoidal model and calculate qPCR efficiency by the ‘window-of-linearity’ method</li>
+<li>View if any Runs are tagged <code>*NAME*/**NAME**</code> due to unsuccessful model fitting/lack of sigmoidal structure</li>
+</ol>
+<pre class="r"><code>set.seed(584)
+data_cdh &lt;- tidyr::spread(data_cdh, Run, Rn)
+res_cdh &lt;- pcrbatch(data_cdh, cyc = 1, fluo = NULL, 
+                    methods = c(&quot;sigfit&quot;, &quot;sliwin&quot;),
+                    plot = TRUE, 
+                    verbose = FALSE)</code></pre>
+<pre><code>## Calculating delta of first/second derivative maxima...
+## .........10.........20.........30.........40.........50
+## .........60
+## 
+## [1] &quot;modlist&quot; &quot;pcrfit&quot;</code></pre>
+<p><img src="enhancers_files/figure-html/combine%20data%20-%20model%20fitting%20and%20efficiency%20calculation-1.png" width="672" /></p>
+<pre><code>## Analyzing cdh^cdh7a*A1_cdh1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A1_cdh2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A2_cdh1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A2_cdh2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A3_cdh1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A3_cdh2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A4_cdh1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A4_cdh2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A5_cdh1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A5_cdh2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A6_cdh1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^cdh7a*A6_cdh2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A1_cdh1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A10_cdh2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A11_cdh2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A12_cdh2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A2_cdh1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A3_cdh1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A4_cdh1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A5_cdh1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A6_cdh1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A7_cdh2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A8_cdh2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdh^gapdh*A9_cdh2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A10_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A10_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A11_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A11_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A12_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A12_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A7_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A7_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A8_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A8_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A9_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A9_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B1_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B2_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B3_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B4_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B5_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B6_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B1_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B10_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B11_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B12_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B2_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B3_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B4_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B5_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B6_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B7_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B8_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B9_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D1_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D2_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D3_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D4_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D5_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D6_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...</code></pre>
+<pre class="r"><code>colnames(res_cdh)</code></pre>
+<pre><code>##  [1] &quot;Vars&quot;                 &quot;cdh^cdh7a*A1_cdh1_1&quot;  &quot;cdh^cdh7a*A1_cdh2_1&quot; 
+##  [4] &quot;cdh^cdh7a*A2_cdh1_1&quot;  &quot;cdh^cdh7a*A2_cdh2_1&quot;  &quot;cdh^cdh7a*A3_cdh1_1&quot; 
+##  [7] &quot;cdh^cdh7a*A3_cdh2_1&quot;  &quot;cdh^cdh7a*A4_cdh1_2&quot;  &quot;cdh^cdh7a*A4_cdh2_2&quot; 
+## [10] &quot;cdh^cdh7a*A5_cdh1_2&quot;  &quot;cdh^cdh7a*A5_cdh2_2&quot;  &quot;cdh^cdh7a*A6_cdh1_2&quot; 
+## [13] &quot;cdh^cdh7a*A6_cdh2_2&quot;  &quot;cdh^gapdh*A1_cdh1_1&quot;  &quot;cdh^gapdh*A10_cdh2_2&quot;
+## [16] &quot;cdh^gapdh*A11_cdh2_2&quot; &quot;cdh^gapdh*A12_cdh2_2&quot; &quot;cdh^gapdh*A2_cdh1_1&quot; 
+## [19] &quot;cdh^gapdh*A3_cdh1_1&quot;  &quot;cdh^gapdh*A4_cdh1_2&quot;  &quot;cdh^gapdh*A5_cdh1_2&quot; 
+## [22] &quot;cdh^gapdh*A6_cdh1_2&quot;  &quot;cdh^gapdh*A7_cdh2_1&quot;  &quot;cdh^gapdh*A8_cdh2_1&quot; 
+## [25] &quot;cdh^gapdh*A9_cdh2_1&quot;  &quot;scr^cdh7a*A10_scr1_2&quot; &quot;scr^cdh7a*A10_scr2_2&quot;
+## [28] &quot;scr^cdh7a*A11_scr1_2&quot; &quot;scr^cdh7a*A11_scr2_2&quot; &quot;scr^cdh7a*A12_scr1_2&quot;
+## [31] &quot;scr^cdh7a*A12_scr2_2&quot; &quot;scr^cdh7a*A7_scr1_1&quot;  &quot;scr^cdh7a*A7_scr2_1&quot; 
+## [34] &quot;scr^cdh7a*A8_scr1_1&quot;  &quot;scr^cdh7a*A8_scr2_1&quot;  &quot;scr^cdh7a*A9_scr1_1&quot; 
+## [37] &quot;scr^cdh7a*A9_scr2_1&quot;  &quot;scr^cdh7a*B1_scr1-1&quot;  &quot;scr^cdh7a*B2_scr1-1&quot; 
+## [40] &quot;scr^cdh7a*B3_scr1-1&quot;  &quot;scr^cdh7a*B4_scr1-2&quot;  &quot;scr^cdh7a*B5_scr1-2&quot; 
+## [43] &quot;scr^cdh7a*B6_scr1-2&quot;  &quot;scr^gapdh*B1_scr1_1&quot;  &quot;scr^gapdh*B10_scr2_2&quot;
+## [46] &quot;scr^gapdh*B11_scr2_2&quot; &quot;scr^gapdh*B12_scr2_2&quot; &quot;scr^gapdh*B2_scr1_1&quot; 
+## [49] &quot;scr^gapdh*B3_scr1_1&quot;  &quot;scr^gapdh*B4_scr1_2&quot;  &quot;scr^gapdh*B5_scr1_2&quot; 
+## [52] &quot;scr^gapdh*B6_scr1_2&quot;  &quot;scr^gapdh*B7_scr2_1&quot;  &quot;scr^gapdh*B8_scr2_1&quot; 
+## [55] &quot;scr^gapdh*B9_scr2_1&quot;  &quot;scr^gapdh*D1_scr1-1&quot;  &quot;scr^gapdh*D2_scr1-1&quot; 
+## [58] &quot;scr^gapdh*D3_scr1-1&quot;  &quot;scr^gapdh*D4_scr1-2&quot;  &quot;scr^gapdh*D5_scr1-2&quot; 
+## [61] &quot;scr^gapdh*D6_scr1-2&quot;</code></pre>
+<p>No runs tagged, so proceed with calculating ratios between experimental conditions.</p>
+<p><br></p>
+<ol start="5" style="list-style-type: decimal">
+<li>We assign each Run into their respective group, in the order shown with <code>colnames(res_cdh)</code>.</li>
+</ol>
+<ul>
+<li>“gs” = gene-of-interest, sample (experimental)</li>
+<li>“rs” = reference gene, sample (experimental)</li>
+<li>“gc” = gene-of-interest, control (scrambled)</li>
+<li>“rc” = reference gene, control (scrambled)</li>
+</ul>
+<pre class="r"><code>group_cdh &lt;- rep(c(&quot;gs&quot;,&quot;rs&quot;,&quot;gc&quot;,&quot;rc&quot;), times=c(12,12,18,18))</code></pre>
+<ol start="6" style="list-style-type: decimal">
+<li>Finally, we compute the ratios between the two conditions (treatment/control) - see <code>ratiocalc</code> documentation for more details. We are interested in the Permutation results (not Monte Carlo or Error Propagation) - see <code>propagate</code> documentation for more details.</li>
+</ol>
+<pre class="r"><code>cdh_ratios &lt;- ratiocalc(res_cdh, group = group_cdh, plot = TRUE, 
+                           which.eff = &quot;sli&quot;, type.eff=&quot;mean.single&quot;, which.cp=&quot;cpD2&quot;)</code></pre>
+<p><img src="enhancers_files/figure-html/compute%20ratios-1.png" width="672" /></p>
+<pre class="r"><code>cdh_ratios$summary</code></pre>
+<pre><code>##                    Sim       Perm      Prop
+## Mean         0.4903858 0.47236452 0.4896362
+## Std.dev.     0.1663977 0.08868237 0.1568446
+## Median       0.4632548 0.48132097        NA
+## MAD          0.1501247 0.08218529        NA
+## Conf.lower   0.2467545 0.28550627 0.1822264
+## Conf.upper   0.8859054 0.61935709 0.7970459
+## perm &gt; init         NA 0.48764045        NA
+## perm == init        NA 0.51235955        NA
+## perm &lt; init         NA 0.00000000        NA</code></pre>
+<pre class="r"><code># make a note of model data was fitted to
+cdh_ratios$summary$model &lt;- c(&quot;sigmoidal&quot;)
+
+# uncomment to save results locally
+#write.table(cdh_ratios, file=&quot;cdh_cdhUP/qpcR_ratios_cdh.txt&quot;, sep=&quot;\t&quot;, quote=F)</code></pre>
+<p><br></p>
+<ol start="7" style="list-style-type: decimal">
+<li>We generate a violin plot of all the permuted values computed during <code>ratiocalc</code>. This should reflect the boxplot generated by the software.</li>
+</ol>
+<p>There are two sets of permuted values. Perm1 results from sampling values based on replicates, while Perm2 results from sampling values based on condition - see <code>propagate</code> documentation for more details.</p>
+<pre class="r"><code>cdh_points_cp &lt;- na.omit(data.frame(cdh_ratios$data.Perm$resPERM, cdh_ratios$data.Perm$resPERM2))
+colnames(cdh_points_cp) &lt;- c(&quot;perm1&quot;,&quot;perm2&quot;)
+cdh_points_cp$model &lt;- c(&quot;sigmoidal&quot;)</code></pre>
+<pre class="r"><code>plot &lt;- ggplot(cdh_points_cp, aes(x=model, y=perm1, fill=model)) + 
+  geom_violin(trim=FALSE) +
+  geom_boxplot(width=0.05, fill=&quot;white&quot;) + # median and quartiles
+  labs(title=&quot;Distribution of permuted ratios (cdh7a_guides/scr_guides)&quot;, y = &quot;Ratio (cdh7a, normalised to gapdh)&quot;)
+plot + scale_fill_brewer(palette=&quot;Dark2&quot;) + theme_minimal()</code></pre>
+<p><img src="enhancers_files/figure-html/violin%20plot-1.png" width="672" /></p>
+<p>If Perm2 values are desired, use y=perm2.</p>
+<p><br></p>
+</div>
+<div id="data_cdhup-sgrnas-targeting-group-upstream-enhancers-only" class="section level4">
+<h4>data_cdhUP (sgRNAs targeting Group Upstream enhancers only)</h4>
+<p>Essentially a repeat of the above.</p>
+<ol style="list-style-type: decimal">
+<li>Set (non) random seed for reproducibility</li>
+<li>Reorganise the data in the exact format required for qpcR package</li>
+<li>Runs <code>pcrbatch</code> function to fit sigmoidal model and calculate qPCR efficiency by the ‘window-of-linearity’ method</li>
+<li>View if any Runs are tagged <code>*NAME*/**NAME**</code> due to unsuccessful model fitting/lack of sigmoidal structure</li>
+</ol>
+<pre class="r"><code>set.seed(584)
+data_cdhUP &lt;- tidyr::spread(data_cdhUP, Run, Rn)
+res_cdhUP &lt;- pcrbatch(data_cdhUP, cyc = 1, fluo = NULL, 
+                    methods = c(&quot;sigfit&quot;, &quot;sliwin&quot;),
+                    plot = TRUE, 
+                    verbose = FALSE)</code></pre>
+<pre><code>## Calculating delta of first/second derivative maxima...
+## .........10.........20.........30.........40.........50
+## .........60
+## 
+## [1] &quot;modlist&quot; &quot;pcrfit&quot;</code></pre>
+<p><img src="enhancers_files/figure-html/combine%20data%20-%20model%20fitting%20and%20efficiency%20calculation%202-1.png" width="672" /></p>
+<pre><code>## Analyzing cdhUP^cdh7a*A1_cdh1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A10_cdh2-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A11_cdh2-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A12_cdh2-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A2_cdh1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A3_cdh1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A4_cdh1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A5_cdh1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A6_cdh1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A7_cdh2-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A8_cdh2-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^cdh7a*A9_cdh2-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C1_cdh1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C10_cdh2-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C11_cdh2-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C12_cdh2-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C2_cdh1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C3_cdh1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C4_cdh1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C5_cdh1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C6_cdh1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C7_cdh2-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C8_cdh2-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing cdhUP^gapdh*C9_cdh2-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A10_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A10_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A11_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A11_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A12_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A12_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A7_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A7_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A8_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A8_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A9_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*A9_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B1_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B2_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B3_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B4_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B5_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^cdh7a*B6_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B1_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B10_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B11_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B12_scr2_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B2_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B3_scr1_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B4_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B5_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B6_scr1_2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B7_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B8_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*B9_scr2_1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D1_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D2_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D3_scr1-1 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D4_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D5_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...
+## 
+## Analyzing scr^gapdh*D6_scr1-2 ...
+##   Calculating &#39;eff&#39; and &#39;ct&#39; from sigmoidal model...
+##   Using window-of-linearity...</code></pre>
+<pre class="r"><code>colnames(res_cdhUP)</code></pre>
+<pre><code>##  [1] &quot;Vars&quot;                   &quot;cdhUP^cdh7a*A1_cdh1-1&quot;  &quot;cdhUP^cdh7a*A10_cdh2-2&quot;
+##  [4] &quot;cdhUP^cdh7a*A11_cdh2-2&quot; &quot;cdhUP^cdh7a*A12_cdh2-2&quot; &quot;cdhUP^cdh7a*A2_cdh1-1&quot; 
+##  [7] &quot;cdhUP^cdh7a*A3_cdh1-1&quot;  &quot;cdhUP^cdh7a*A4_cdh1-2&quot;  &quot;cdhUP^cdh7a*A5_cdh1-2&quot; 
+## [10] &quot;cdhUP^cdh7a*A6_cdh1-2&quot;  &quot;cdhUP^cdh7a*A7_cdh2-1&quot;  &quot;cdhUP^cdh7a*A8_cdh2-1&quot; 
+## [13] &quot;cdhUP^cdh7a*A9_cdh2-1&quot;  &quot;cdhUP^gapdh*C1_cdh1-1&quot;  &quot;cdhUP^gapdh*C10_cdh2-2&quot;
+## [16] &quot;cdhUP^gapdh*C11_cdh2-2&quot; &quot;cdhUP^gapdh*C12_cdh2-2&quot; &quot;cdhUP^gapdh*C2_cdh1-1&quot; 
+## [19] &quot;cdhUP^gapdh*C3_cdh1-1&quot;  &quot;cdhUP^gapdh*C4_cdh1-2&quot;  &quot;cdhUP^gapdh*C5_cdh1-2&quot; 
+## [22] &quot;cdhUP^gapdh*C6_cdh1-2&quot;  &quot;cdhUP^gapdh*C7_cdh2-1&quot;  &quot;cdhUP^gapdh*C8_cdh2-1&quot; 
+## [25] &quot;cdhUP^gapdh*C9_cdh2-1&quot;  &quot;scr^cdh7a*A10_scr1_2&quot;   &quot;scr^cdh7a*A10_scr2_2&quot;  
+## [28] &quot;scr^cdh7a*A11_scr1_2&quot;   &quot;scr^cdh7a*A11_scr2_2&quot;   &quot;scr^cdh7a*A12_scr1_2&quot;  
+## [31] &quot;scr^cdh7a*A12_scr2_2&quot;   &quot;scr^cdh7a*A7_scr1_1&quot;    &quot;scr^cdh7a*A7_scr2_1&quot;   
+## [34] &quot;scr^cdh7a*A8_scr1_1&quot;    &quot;scr^cdh7a*A8_scr2_1&quot;    &quot;scr^cdh7a*A9_scr1_1&quot;   
+## [37] &quot;scr^cdh7a*A9_scr2_1&quot;    &quot;scr^cdh7a*B1_scr1-1&quot;    &quot;scr^cdh7a*B2_scr1-1&quot;   
+## [40] &quot;scr^cdh7a*B3_scr1-1&quot;    &quot;scr^cdh7a*B4_scr1-2&quot;    &quot;scr^cdh7a*B5_scr1-2&quot;   
+## [43] &quot;scr^cdh7a*B6_scr1-2&quot;    &quot;scr^gapdh*B1_scr1_1&quot;    &quot;scr^gapdh*B10_scr2_2&quot;  
+## [46] &quot;scr^gapdh*B11_scr2_2&quot;   &quot;scr^gapdh*B12_scr2_2&quot;   &quot;scr^gapdh*B2_scr1_1&quot;   
+## [49] &quot;scr^gapdh*B3_scr1_1&quot;    &quot;scr^gapdh*B4_scr1_2&quot;    &quot;scr^gapdh*B5_scr1_2&quot;   
+## [52] &quot;scr^gapdh*B6_scr1_2&quot;    &quot;scr^gapdh*B7_scr2_1&quot;    &quot;scr^gapdh*B8_scr2_1&quot;   
+## [55] &quot;scr^gapdh*B9_scr2_1&quot;    &quot;scr^gapdh*D1_scr1-1&quot;    &quot;scr^gapdh*D2_scr1-1&quot;   
+## [58] &quot;scr^gapdh*D3_scr1-1&quot;    &quot;scr^gapdh*D4_scr1-2&quot;    &quot;scr^gapdh*D5_scr1-2&quot;   
+## [61] &quot;scr^gapdh*D6_scr1-2&quot;</code></pre>
+<p>No runs tagged, so proceed with calculating ratios between experimental conditions.</p>
+<p><br></p>
+<ol start="5" style="list-style-type: decimal">
+<li>We assign each Run into their respective group, in the order shown with <code>colnames(res_cdhUP)</code>.</li>
+</ol>
+<ul>
+<li>“gs” = gene-of-interest, sample (experimental)</li>
+<li>“rs” = reference gene, sample (experimental)</li>
+<li>“gc” = gene-of-interest, control (scrambled)</li>
+<li>“rc” = reference gene, control (scrambled)</li>
+</ul>
+<pre class="r"><code>group_cdhUP &lt;- rep(c(&quot;gs&quot;,&quot;rs&quot;,&quot;gc&quot;,&quot;rc&quot;), times=c(12,12,18,18))</code></pre>
+<ol start="6" style="list-style-type: decimal">
+<li>Finally, we compute the ratios between the two conditions (treatment/control) - see <code>ratiocalc</code> documentation for more details. We are interested in the Permutation results (not Monte Carlo or Error Propagation) - see <code>propagate</code> documentation for more details.</li>
+</ol>
+<pre class="r"><code>cdhUP_ratios &lt;- ratiocalc(res_cdhUP, group = group_cdhUP, plot = TRUE, 
+                           which.eff = &quot;sli&quot;, type.eff=&quot;mean.single&quot;, which.cp=&quot;cpD2&quot;)</code></pre>
+<p><img src="enhancers_files/figure-html/compute%20ratios%202-1.png" width="672" /></p>
+<pre class="r"><code>cdhUP_ratios$summary</code></pre>
+<pre><code>##                    Sim      Perm      Prop
+## Mean         1.4834712 1.4368529 1.4823906
+## Std.dev.     0.4160095 0.1517290 0.3998299
+## Median       1.4262932 1.4180290        NA
+## MAD          0.3850608 0.1589046        NA
+## Conf.lower   0.8385856 1.1846037 0.6987384
+## Conf.upper   2.4369906 1.7563898 2.2660428
+## perm &gt; init         NA 0.0000000        NA
+## perm == init        NA 0.5123596        NA
+## perm &lt; init         NA 0.4876404        NA</code></pre>
+<pre class="r"><code># make a note of model data was fitted to
+cdhUP_ratios$summary$model &lt;- c(&quot;sigmoidal&quot;)
+
+# uncomment to save results locally
+#write.table(cdh_ratios, file=&quot;cdh_cdhUP/qpcR_ratios_cdh.txt&quot;, sep=&quot;\t&quot;, quote=F)</code></pre>
+<p><br></p>
+<ol start="7" style="list-style-type: decimal">
+<li>We generate a violin plot of all the permuted values computed during <code>ratiocalc</code>. This should reflect the boxplot generated by the software.</li>
+</ol>
+<p>There are two sets of permuted values. Perm1 results from sampling values based on replicates, while Perm2 results from sampling values based on condition - see <code>propagate</code> documentation for more details.</p>
+<pre class="r"><code>cdhUP_points_cp &lt;- na.omit(data.frame(cdhUP_ratios$data.Perm$resPERM, cdhUP_ratios$data.Perm$resPERM2))
+colnames(cdhUP_points_cp) &lt;- c(&quot;perm1&quot;,&quot;perm2&quot;)
+cdhUP_points_cp$model &lt;- c(&quot;sigmoidal&quot;)</code></pre>
+<pre class="r"><code>plotUP &lt;- ggplot(cdhUP_points_cp, aes(x=model, y=perm1, fill=model)) + 
+  geom_violin(trim=FALSE) +
+  geom_boxplot(width=0.05, fill=&quot;white&quot;) + # median and quartiles
+  labs(title=&quot;Distribution of permuted ratios (cdh7a_guides/scr_guides)&quot;, y = &quot;Ratio (cdh7a, normalised to gapdh)&quot;)
+plotUP + scale_fill_brewer(palette=&quot;Dark2&quot;) + theme_minimal()</code></pre>
+<p><img src="enhancers_files/figure-html/violin%20plot%202-1.png" width="672" /></p>
+<p>If Perm2 values are desired, use y=perm2.</p>
+<p><br></p>
+<hr />
+<p><br></p>
+</div>
+</div>
+</div>
+<div id="pdgfra-enhancers" class="section level2">
+<h2><em>pdgfra</em> enhancers</h2>
+<p>In progress</p>
+<p><br></p>
+<hr />
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Mojave 10.14.6
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] RColorBrewer_1.1-2 forcats_0.5.1      stringr_1.4.0      dplyr_1.0.8       
+##  [5] purrr_0.3.4        readr_2.1.2        tidyr_1.2.0        tibble_3.1.6      
+##  [9] ggplot2_3.3.5      tidyverse_1.3.1    qpcR_1.4-1         Matrix_1.4-0      
+## [13] robustbase_0.93-9  rgl_0.108.3        minpack.lm_1.2-1   MASS_7.3-55       
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_1.0.8.2      lubridate_1.8.0   lattice_0.20-45   assertthat_0.2.1 
+##  [5] digest_0.6.29     utf8_1.2.2        R6_2.5.1          cellranger_1.1.0 
+##  [9] backports_1.4.1   reprex_2.0.1      evaluate_0.15     highr_0.9        
+## [13] httr_1.4.2        pillar_1.7.0      rlang_1.0.2       readxl_1.3.1     
+## [17] rstudioapi_0.13   jquerylib_0.1.4   rmarkdown_2.13    labeling_0.4.2   
+## [21] htmlwidgets_1.5.4 munsell_0.5.0     broom_0.7.12      compiler_4.0.3   
+## [25] modelr_0.1.8      xfun_0.30         pkgconfig_2.0.3   htmltools_0.5.2  
+## [29] tidyselect_1.1.2  fansi_1.0.2       withr_2.5.0       crayon_1.5.0     
+## [33] tzdb_0.2.0        dbplyr_2.1.1      grid_4.0.3        jsonlite_1.8.0   
+## [37] gtable_0.3.0      lifecycle_1.0.1   DBI_1.1.2         magrittr_2.0.2   
+## [41] scales_1.1.1      cli_3.2.0         stringi_1.7.6     farver_2.1.0     
+## [45] fs_1.5.2          xml2_1.3.3        bslib_0.3.1       ellipsis_0.3.2   
+## [49] generics_0.1.2    vctrs_0.3.8       tools_4.0.3       glue_1.6.2       
+## [53] DEoptimR_1.0-10   hms_1.1.1         fastmap_1.1.0     yaml_2.3.5       
+## [57] colorspace_2.0-3  rvest_1.0.2       knitr_1.37        haven_2.4.3      
+## [61] sass_0.4.0</code></pre>
+<p><br></p>
+<hr />
+</div>
+<div id="references-and-useful-links" class="section level2">
+<h2>References and useful links</h2>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/qpcR/index.html">qpcR download</a></li>
+<li><a href="https://www.rdocumentation.org/packages/qpcR/versions/1.4-1">qpcR documentation</a></li>
+<li><a href="http://www.dr-spiess.de/qpcR.html">qpcR website</a></li>
+<li>Christian Ritz, Andrej-Nikolai Spiess, qpcR: an R package for sigmoidal model selection in quantitative real-time polymerase chain reaction analysis, Bioinformatics, Volume 24, Issue 13, 1 July 2008, Pages 1549–1551, <a href="https://doi.org/10.1093/bioinformatics/btn227" class="uri">https://doi.org/10.1093/bioinformatics/btn227</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
