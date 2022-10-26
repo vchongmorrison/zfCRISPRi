@@ -1,0 +1,5 @@
+sample	condition
+cit_lnc-1	lnc
+cit_lnc-2	lnc
+cit_scr-1	scr
+cit_scr-2	scr
