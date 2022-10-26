@@ -8,7 +8,7 @@ title: "qPCR analysis - enhancer zfCRISPRi"
 
 ## Experimental summary
 
-CRISPRi microinjections were performed with Ac/Ds sgRNAs targeting enhancers, or scrambled control. Cells expressing dCas9-SID4x-2a-Citrine under the control of a sox10 (most neural crest, plus few non-NC cell types) BAC transgene were FAC-sorted from 24hpf embryos. RNA was isolated and cDNA (via oligo-dT priming) synthesised. Quantitative real-time PCR (qPCR) was performed using TaqMan Gene Expression Assay on StepOnePlus platform and software v2.3.
+CRISPRi microinjections were performed with Ac/Ds-sgRNAs targeting enhancers versus scrambled. Cells expressing dCas9-SID4x-2a-Citrine under the control of a *sox10* (most neural crest, and few non-NC cell types) BAC transgene were FAC-sorted from 24hpf embryos. RNA were isolated for cDNA synthesis by oligo-dT priming. Quantitative real-time PCR (qPCR) was performed using TaqMan Gene Expression Assay on StepOnePlus platform and software v2.3.
 
 [TaqMan](https://www.thermofisher.com/uk/en/home/life-science/pcr/real-time-pcr/real-time-pcr-assays/taqman-gene-expression.html?SID=fr-taqman-1) reagents used:
 
@@ -16,6 +16,8 @@ CRISPRi microinjections were performed with Ac/Ds sgRNAs targeting enhancers, or
 - Dr03086868_m1 (pdgfra; 67 bp)
 - Dr03436842_m1 (gapdh - endogenous control; 121 bp)
 - TaqMan Fast Advanced Master Mix #4444556
+
+Key experimental protocols can be found [here](https://vchongmorrison.github.io).
 
 ---
 
@@ -63,7 +65,7 @@ Add Group column based on experimental condition.
 
 - cdh = upstream and intronic sgRNAs
 - cdhUP = upstream sgRNAs only
-- scr = scrambled sgRNAs.
+- scr = scrambled sgRNAs
 
 ```{r data - condition}
 data1$Group <- rep(c("cdh","scr"), times=c(240,240))
@@ -112,7 +114,7 @@ data_cdhUP <- rbind((data[grep("UP", data$Run), ]),(data[grep("scr", data$Run), 
 
 1) Set (non) random seed for reproducibility
 2) Reorganise the data in the exact format required for qpcR package
-3) Runs `pcrbatch` function to fit sigmoidal model and calculate qPCR efficiency by the 'window-of-linearity' method
+3) Run `pcrbatch` function to fit sigmoidal model and calculate qPCR efficiency by the 'window-of-linearity' method
 4) View if any Runs are tagged `*NAME*/**NAME**` due to unsuccessful model fitting/lack of sigmoidal structure
 
 ```{r combine data - model fitting and efficiency calculation}
@@ -260,7 +262,122 @@ If Perm2 values are desired, use y=perm2.
 
 ## *pdgfra* enhancers
 
-In progress
+As above, but here, my data is split across two dataframes/plates.
+
+```{r data - import 2}
+data5 <- data.frame(read.table("./data5.txt", header=TRUE, sep="\t"))
+data6 <- data.frame(read.table("./data6.txt", header=TRUE, sep="\t"))
+
+head(data5, 10)
+```
+Add Group column based on experimental condition. 
+
+- pdg = upstream sgRNAs
+- scr = scrambled sgRNAs
+
+```{r data - condition 2}
+data5$Group <- rep(c("pdg","scr","pdg","scr"), times=c(240,240,240,240))
+data6$Group <- rep(c("pdg","scr","pdg","scr"), times=c(240,240,240,240))
+
+head(data5, 10)
+```
+
+Final tidying up. Prefix Group (experimental condition) to existing Run names, check all is in order, then rename columns back to Cycles, Run, Rn.
+
+```{r data - tidy 2}
+data5 <- data.frame(data5$Cycles, (paste(data5$Group,data5$Run,sep="^")), data5$Rn)
+data6 <- data.frame(data6$Cycles, (paste(data6$Group,data6$Run,sep="^")), data6$Rn)
+head(data5, 10)
+```
+
+```{r data - final 2}
+colnames(data5) <- c("Cycles", "Run", "Rn")
+colnames(data6) <- c("Cycles", "Run", "Rn")
+
+head(data5, 10)
+```
+
+<br>
+
+### qpcR analysis
+
+1) Set (non) random seed for reproducibility
+2) Reorganise the data in the exact format required for qpcR package
+3) Run `pcrbatch` function to fit sigmoidal model and calculate qPCR efficiency by the 'window-of-linearity' method
+4) View if any Runs are tagged `*NAME*/**NAME**` due to unsuccessful model fitting/lack of sigmoidal structure
+
+```{r combine data - model fitting and efficiency calculation 3}
+set.seed(584)
+data_pdg <- data.frame(rbind(data5,data6))
+data_pdg <- tidyr::spread(data_pdg, Run, Rn)
+res_pdg <- pcrbatch(data_pdg, cyc = 1, fluo = NULL, 
+                    methods = c("sigfit", "sliwin"),
+                    plot = TRUE, 
+                    verbose = FALSE)
+colnames(res_pdg)
+```
+
+Some runs lack sigmoidal structure (`**NAME**`) i.e. failed to amplify. Re-run `pcrbatch`, this time excluding unsuccessful Run(s).
+
+```{r combine data - model fitting and efficiency calculation 4}
+res_pdg <- pcrbatch(data_pdg, cyc = 1, fluo = NULL, 
+                    methods = c("sigfit", "sliwin"),
+                    plot = TRUE, 
+                    verbose = FALSE,
+                    remove="KOD") # or "fit" for Runs with unsuccessful model fitting)
+colnames(res_pdg)
+```
+
+<br>
+
+5) Proceed with calculating ratios between experimental conditions. We assign each Run into their respective group, in the order shown with `colnames(res_pdg)`. 
+
+- "gs" = gene-of-interest, sample (experimental)
+- "rs" = reference gene, sample (experimental)
+- "gc" = gene-of-interest, control (scrambled)
+- "rc" = reference gene, control (scrambled)
+
+```{r assign groups 3}
+group_pdg <- rep(c("rs","gs","rc","gc"), times=c(8,11,12,12))
+```
+
+6) Finally, we compute the ratios between the two conditions (treatment/control) - see `ratiocalc` documentation for more details. We are interested in the Permutation results (not Monte Carlo or Error Propagation) - see `propagate` documentation for more details.
+
+```{r compute ratios 3}
+pdg_ratios <- ratiocalc(res_pdg, group = group_pdg, plot = TRUE, 
+                           which.eff = "sli", type.eff="mean.single", which.cp="cpD2")
+```
+
+```{r view and save summary stats 3}
+pdg_ratios$summary
+# make a note of model data was fitted to
+pdg_ratios$summary$model <- c("sigmoidal")
+
+# uncomment to save results locally
+#write.table(pdg_ratios, file="./qpcR_ratios_pdg.txt", sep="\t", quote=F)
+```
+
+<br>
+
+7) We generate a violin plot of all the permuted values computed during `ratiocalc`. This should reflect the boxplot generated by the software.
+
+There are two sets of permuted values. Perm1 results from sampling values based on replicates, while Perm2 results from sampling values based on condition - see `propagate` documentation for more details.
+
+```{r create dataframe of permuted values 3}
+pdg_points_cp <- na.omit(data.frame(pdg_ratios$data.Perm$resPERM, pdg_ratios$data.Perm$resPERM2))
+colnames(pdg_points_cp) <- c("perm1","perm2")
+pdg_points_cp$model <- c("sigmoidal")
+```
+
+```{r violin plot 3}
+plot_pdg <- ggplot(pdg_points_cp, aes(x=model, y=perm1, fill=model)) + 
+  geom_violin(trim=FALSE) +
+  geom_boxplot(width=0.05, fill="white") + # median and quartiles
+  labs(title="Distribution of permuted ratios (pdgfra_guides/scr_guides)", y = "Ratio (pdgfra, normalised to gapdh)")
+plot_pdg + scale_fill_brewer(palette="Dark2") + theme_minimal()
+```
+
+If Perm2 values are desired, use y=perm2.
 
 <br>
 
@@ -275,7 +392,7 @@ sessionInfo()
 
 ---
 
-## References and useful links
+## References
 - [qpcR download](https://cran.r-project.org/web/packages/qpcR/index.html)
 - [qpcR documentation](https://www.rdocumentation.org/packages/qpcR/versions/1.4-1)
 - [qpcR website](http://www.dr-spiess.de/qpcR.html)

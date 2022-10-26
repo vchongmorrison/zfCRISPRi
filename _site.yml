@@ -1,0 +1,19 @@
+name: "zfCRISPRi"
+output_dir: "docs"
+navbar:
+  title: "zfCRISPRi"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Fig3 enhancers"
+      href: enhancers.html
+    - text: "Fig4 antisense txn"
+      href: antisense.html
+  right: 
+    - icon: fa-envelope fa-lg
+      href: mailto:<v.chongmorrison@ucl.ac.uk>
+    - icon: fa-github fa-lg
+      href: http://github.com/vchongmorrison/
+output:
+  html_document:
+    theme: readable

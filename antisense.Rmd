@@ -8,11 +8,276 @@ title: "Stranded RNA-seq - antisense transcription zfCRISPRi"
 
 ## Experimental summary
 
-In progress
+CRISPRi microinjections were performed with Ac/Ds-sgRNAs targeting initiation of antisense transcription at *sox9a* and *foxd3* loci. Scrambled guides were used as control. Cells expressing dCas9-SID4x-2a-Citrine under the control of a *sox10* (most neural crest, and few non-NC cell types) BAC transgene were FAC-sorted from 24hpf embryos. RNA were isolated for strand-specific RNAseq library preparation using dUTP protocol ([KAPA RNA HyperPrep Kit with RiboErase (HMR)](https://rochesequencingstore.com/catalog/kapa-rna-hyperprep-kit-with-riboerase-hmr/)). Transcript quantification followed by differential expression was performed using *kallisto/sleuth* pipeline.
 
-[KAPA RNA HyperPrep Kit with RiboErase (HMR)](https://rochesequencingstore.com/catalog/kapa-rna-hyperprep-kit-with-riboerase-hmr/)
+Key experimental protocols can be found [here](https://vchongmorrison.github.io).
 
+Tarball (25Gb) containing FastQ files and custom sequences can be downloaded from [here](http:///datashare/project/tsslab/manuscript_data/fish_AcDs/fish_AcDs.tar.gz). 
 
 ---
 
 <br>
+
+## Transcript quantification
+
+Quality of reads were checked with FastQC v0.11.9 prior to following analysis.
+
+<br>
+
+### Trim reads - *cutadapt v2.10* (Python 3.6.10)
+
+Libraries were indexed using NEBNext adapters and oligos.
+
+```{bash cutadapt, eval=FALSE, engine="sh"}
+cutadapt -a Read1_F=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A Read2_R=AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT \
+-m 40 -q 30 --cores=8 --report=minimal \
+-o trimmed_cit_scr-1_R1.fastq -p trimmed_cit_scr-1_R2.fastq \
+cit_scr-1_R1.fastq cit_scr-1_R2.fastq
+```
+
+Trimming of adapters from reads were confirmed by rerunning FastQC v0.11.9.
+
+<br>
+
+### Transcriptome reference for pseudoalignment
+
+Download Ensembl release 105 sequences and chrom sizes from UCSC Genome Browser.
+
+```{bash Ensembl reference, eval=FALSE, engine="sh"}
+wget http://ftp.ensembl.org/pub/release-105/fasta/danio_rerio/cdna/Danio_rerio.GRCz11.cdna.all.fa.gz
+wget http://ftp.ensembl.org/pub/release-105/fasta/danio_rerio/ncrna/Danio_rerio.GRCz11.ncrna.fa.gz
+wget http://ftp.ensembl.org/pub/release-105/gtf/danio_rerio/Danio_rerio.GRCz11.105.gtf.gz
+wget https://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/danRer11.chrom.sizes
+```
+
+Create custom transcriptome reference combining cDNA (Ensembl), ncRNA (Ensembl), sox9a_AS (custom), and foxd3_AS (custom).
+```{bash Custom transcriptome reference, eval=FALSE, engine="sh"}
+cat Danio_rerio.GRCz11.cdna.all.fa Danio_rerio.GRCz11.ncrna.fa sox9a_AS.fa foxd3_AS.fa > custom_14Mar2022.fa
+```
+
+Index for pseudoalignment - *kallisto v0.46.1*
+```{bash Reference index, eval=FALSE, engine="sh"}
+kallisto index -i custom_14Mar2022.idx custom_14Mar2022.fa --make-unique
+```
+
+```{bash Reference index output, eval=FALSE, engine="sh"}
+#[build] loading fasta file custom_14Mar2022.fa
+#[build] k-mer length: 31
+#[build] warning: clipped off poly-A tail (longer than 10) from 380 target sequences
+#[build] warning: replaced 13167 non-ACGUT characters in the input sequence with pseudorandom nucleotides
+#[build] counting k-mers ... done.
+#[build] building target de Bruijn graph ...  done 
+#[build] creating equivalence classes ...  done
+#[build] target de Bruijn graph has 501714 contigs and contains 71214712 k-mers
+```
+
+<br>
+
+### Quantify transcripts - *kallisto v0.46.1*
+
+Include bootstrapping option for *sleuth* differential expression.
+Include --genomebam option to project pseudoalignments onto genome sorted BAM files.
+
+```{bash Quantify transcripts, eval=FALSE, engine="sh"}
+kallisto quant -i ensembl_105/custom_14Mar2022.idx \
+-o kallisto/cit_scr-1 \
+-b 100 --genomebam -g ensembl_105/Danio_rerio.GRCz11.105.gtf -c danRer11.chrom.sizes \
+fastq/trimmed_cit_scr-1_R1.fastq fastq/trimmed_cit_scr-1_R2.fastq \
+--rf-stranded --threads=8
+```
+
+<br>
+
+## Differential transcript expression and GO analysis
+
+<br>
+
+### Load required packages
+
+```{r packages, results=FALSE}
+library(sleuth)
+library(tidyverse)
+library(biomaRt)
+library(rbioapi)
+```
+
+<br>
+
+### Load kallisto data and assign experimental setup
+
+```{r data - import}
+sample_id <- dir(file.path(".", "abundances"))
+kal_dirs <- file.path(".", "abundances", sample_id)
+s2c <- read.table(file.path(".", "seq_info.txt"), header = TRUE)
+s2c <- dplyr::select(s2c, sample = sample, condition)
+s2c <- dplyr::mutate(s2c, path = kal_dirs)
+
+s2c$condition <- relevel(factor(s2c$condition), "scr") # set "scr" as the base level (! IMPORTANT !)
+```
+
+<br>
+
+### Collect Ensembl gene names using biomaRt
+
+```{r data - Ensembl gene names}
+mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "drerio_gene_ensembl", host = 'https://www.ensembl.org')
+t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id_version", "ensembl_gene_id", "external_gene_name", "description"), mart = mart)
+t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id_version, ens_gene = ensembl_gene_id, ext_gene = external_gene_name, des=description)
+```
+
+<br>
+
+### Differential transcript expression - *sleuth v0.30.0*
+
+1) Construct “sleuth object”. Stores information about the experiment, and details of the model to be used for differential testing.
+2) Fit data to models for hypothesis testing.
+3) “Smooth” the raw *kallisto* abundance estimates for each sample using a linear model with a parameter that represents the experimental condition.
+4) Perform Wald test.
+
+```{r Differential expression}
+set.seed(584)
+so <- sleuth_prep(s2c, extra_bootstrap_summary = TRUE, read_bootstrap_tpm = TRUE, 
+                  target_mapping = t2g, transformation_function = function(x) log2(x + 0.01))
+so <- sleuth_fit(so, ~condition, 'full')
+so <- sleuth_wt(so, 'conditionlnc', which_model="full") # Wald test
+sleuth_table <- sleuth_results(so, "conditionlnc", "full", show_all = TRUE) # Examine results
+
+# uncomment to save results locally
+#write.csv(sleuth_table,file='wald_conditionlnc.csv')
+#save(so, file='wald_conditionlnc.RData')
+```
+
+Plots to visualise samples.
+
+```{r Sample PCA}
+plot_pca(so, color_by = 'condition', text_labels = TRUE) + theme_minimal()
+```
+
+```{r Sample heatmap}
+plot_sample_heatmap(so)
+```
+
+Result tables.
+
+```{r Result tables - up/downregulated transcripts}
+sig_transcripts_up <- sleuth_table %>% filter(qval < 0.05, b>0)
+sig_transcripts_dn <- sleuth_table %>% filter(qval < 0.05, b<0)
+
+# uncomment to save results locally
+#write.csv(sig_transcripts_up,file='wald_conditionlnc_up_qval005.csv')
+#write.csv(sig_transcripts_dn,file='wald_conditionlnc_down_qval005.csv')
+```
+
+Bootstrap estimates of sox9a/foxd3 transcripts.
+
+```{r Bootstrap estimates}
+plot_bootstrap(so, 
+               target_id = "sox9a_AS", 
+               units = "tpm", 
+               color_by = "condition") + theme_minimal()
+
+plot_bootstrap(so, 
+               target_id = "foxd3_AS", 
+               units = "tpm", 
+               color_by = "condition") + theme_minimal()
+
+plot_bootstrap(so, 
+               target_id = "ENSDART00000005676.6", # sox9a-201
+               units = "tpm", 
+               color_by = "condition") + theme_minimal()
+
+plot_bootstrap(so, 
+               target_id = "ENSDART00000127937.3", # sox9a-202
+               units = "tpm", 
+               color_by = "condition") + theme_minimal()
+
+plot_bootstrap(so, 
+               target_id = "ENSDART00000017695.6", # foxd3-201
+               units = "tpm", 
+               color_by = "condition") + theme_minimal()
+```
+
+<br>
+
+### GO analysis - PANTHER classification system
+
+```{r PANTHER GO analysis}
+up_genes <- as.character(sig_transcripts_up$ens_gene)
+down_genes <- as.character(sig_transcripts_dn$ens_gene)
+data.frame(rba_panther_info(what="datasets")) # to choose dataset ID
+data.frame(rba_panther_info(what="organisms")) # to choose organism ID
+```
+
+Fisher's exact test with FDR < 0.01, GO Biological Process Complete annotation.
+
+```{r Fishers exact test}
+res_up <- rba_panther_enrich(genes = up_genes,
+                          organism = 7955 , annot_dataset = "GO:0008150",
+                          cutoff = 0.01,
+                          test_type = "FISHER",
+                          correction = "FDR")
+
+res_down <- rba_panther_enrich(genes = down_genes,
+                   organism = 7955 , annot_dataset = "GO:0008150",
+                   cutoff = 0.01,
+                   test_type = "FISHER",
+                   correction = "FDR")
+```
+
+Plot results as diverging barcharts.
+
+```{r Upregulated transcripts/genes}
+res_up <- data.frame(res_up$result)
+res_up$GO <- paste(res_up$term.id,res_up$term.label,sep="_")
+res_up$representation <- ifelse(res_up$fold_enrichment < 1, "under", "over")
+res_up <- res_up[order(-res_up$fold_enrichment), ]
+# convert to factor to retain sorted order in plot
+res_up$GO <- factor(res_up$GO, levels = res_up$GO)
+res_up <- res_up %>% filter(fold_enrichment > 10)
+
+ggplot(res_up, aes(x=GO, y=fold_enrichment, label=fold_enrichment)) + 
+  geom_bar(stat='identity', aes(fill=representation), width=.5)  +
+  scale_fill_manual(name="Representation", 
+                    labels = c("Over", "Under"), 
+                    values = c("over"="#0072B2", "under"="#D55E00")) + 
+  labs(subtitle="PANTHER statistical overrepresentation test", 
+       title= "Upregulated genes qval < 0.05. Fisher's exact, FDR < 0.01, fold_enrichment > 10") + 
+  coord_flip()
+```
+
+```{r Downregulated transcripts/genes}
+res_down <- data.frame(res_down$result)
+res_down$GO <- paste(res_down$term.id,res_down$term.label,sep="_")
+res_down$representation <- ifelse(res_down$fold_enrichment < 1, "under", "over")
+res_down <- res_down[order(-res_down$fold_enrichment), ]
+# convert to factor to retain sorted order in plot
+res_down$GO <- factor(res_down$GO, levels = res_down$GO)
+res_down <- res_down %>% filter(fold_enrichment > 10)
+
+ggplot(res_down, aes(x=GO, y=fold_enrichment, label=fold_enrichment)) + 
+  geom_bar(stat='identity', aes(fill=representation), width=.5)  +
+  scale_fill_manual(name="Representation", 
+                    labels = c("Over", "Under"), 
+                    values = c("over"="#0072B2", "under"="#D55E00")) + 
+  labs(subtitle="PANTHER statistical overrepresentation test", 
+       title= "Downregulated genes qval < 0.05. Fisher's exact, FDR < 0.01, fold_enrichment > 10") + 
+  coord_flip()
+```
+
+<br>
+
+---
+
+```{r session info}
+sessionInfo()
+```
+
+<br>
+
+---
+
+## References
+- [kallisto](https://pachterlab.github.io/kallisto/)
+- [sleuth](https://pachterlab.github.io/sleuth/)
+- [rbioapi](https://rbioapi.moosa-r.com/index.html)
+- [PANTHER classification system](http://www.pantherdb.org)

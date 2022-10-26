@@ -8,17 +8,17 @@ title: "zfCRISPRi with Ac/Ds transposition of sgRNAs"
 
 ## Welcome
 
-Hello, here you will find analysis walkthroughs of the results of the following study:
+This site contains analysis walkthroughs of the results from the following study:
 
-[Re-purposing Ac/Ds transgenic system for CRISPR/dCas9 modulation of enhancers and non-coding RNAs in zebrafish](https://doi.org/10.1101/450684 "biorxiv.org")
+[Re-purposing Ac/Ds transgenic system for CRISPR/dCas9 modulation of enhancers and non-coding RNAs in zebrafish](https://www.biorxiv.org/content/10.1101/450684v2)
+
+REVISED - [Ac/Ds transposition for CRISPR/dCas9-SID4x epigenome modulation in zebrafish](https://www.biorxiv.org/content/10.1101/450684v2)
 
 <br>
 
-## Things to note
+## Note
 
-As the title suggests, this study was performed in zebrafish (*Danio rerio*). 
-
-The figure numbers in the navigation bar correspond to the **LATEST** version (not the original!) of the manuscript, and is currently undergoing peer review.
+Figure numbers in the navigation bar correspond to the **REVISED** version of the manuscript currently undergoing post-revision peer review.
 
 
 
