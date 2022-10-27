@@ -1,0 +1,13 @@
+{
+	"n_targets": 65892,
+	"n_bootstraps": 100,
+	"n_processed": 78413720,
+	"n_pseudoaligned": 39656470,
+	"n_unique": 21174729,
+	"p_pseudoaligned": 50.6,
+	"p_unique": 27.0,
+	"kallisto_version": "0.46.1",
+	"index_version": 10,
+	"start_time": "Mon Mar 14 14:16:55 2022",
+	"call": "kallisto quant -i ensembl_105/custom_14Mar2022.idx -o kallisto/cit_scr-1 -b 100 --genomebam -g ensembl_105/Danio_rerio.GRCz11.105.gtf -c danRer11.chrom.sizes --rf-stranded --threads=8 fastq/trimmed_cit_scr-1_R1.fastq fastq/trimmed_cit_scr-1_R2.fastq"
+}
