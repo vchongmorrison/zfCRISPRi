@@ -12,13 +12,13 @@ This site contains analysis walkthroughs of the results from the following study
 
 [Re-purposing Ac/Ds transgenic system for CRISPR/dCas9 modulation of enhancers and non-coding RNAs in zebrafish](https://www.biorxiv.org/content/10.1101/450684v2)
 
-REVISED - [Ac/Ds transposition for CRISPR/dCas9-SID4x epigenome modulation in zebrafish](https://www.dropbox.com/s/2muxkkqeslgxy83/2022-10-26_AcDs_proof.pdf?dl=0)
+Now published in Biology Open (Open Access) - [Ac/Ds transposition for CRISPR/dCas9-SID4x epigenome modulation in zebrafish](https://doi.org/10.1242/bio.059995)
 
 <br>
 
 ## Note
 
-Figure numbers in the navigation bar correspond to the **REVISED** version of the manuscript currently undergoing post-revision peer review.
+Figure numbers in the navigation bar correspond to the published version of the manuscript.
 
 
 
