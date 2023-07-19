@@ -16,4 +16,4 @@ navbar:
       href: http://github.com/vchongmorrison/
 output:
   html_document:
-    theme: readable
+    theme: lumen
