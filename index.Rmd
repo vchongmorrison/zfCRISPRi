@@ -14,6 +14,8 @@ This site contains analysis walkthroughs of the results from the following study
 
 Now published in Biology Open (Open Access) - [Ac/Ds transposition for CRISPR/dCas9-SID4x epigenome modulation in zebrafish](https://doi.org/10.1242/bio.059995)
 
+Any questions? Contact [me](https://vchongmorrison.github.io/email/).
+
 <br>
 
 ## Note
