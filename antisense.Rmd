@@ -12,7 +12,7 @@ CRISPRi microinjections were performed with Ac/Ds-sgRNAs targeting initiation of
 
 Key experimental protocols can be found [here](https://vchongmorrison.github.io).
 
-Tarball (25Gb) containing FastQ files and custom sequences can be downloaded from [here](http:///datashare/project/tsslab/manuscript_data/fish_AcDs/fish_AcDs.tar.gz). 
+Tarball (25Gb) containing FastQ files and custom sequences can be downloaded from [here](http://datashare.molbiol.ox.ac.uk/public/project/tsslab/manuscript_data/fish_AcDs/fish_AcDs.tar.gz). 
 
 ---
 
